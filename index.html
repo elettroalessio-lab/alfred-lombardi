@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Alfred">
   <meta name="theme-color" content="#2f8fd4">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="alfred-manifest.json">
+  <link rel="apple-touch-icon" href="alfred-icon-192.png">
   
   
   
@@ -536,7 +536,7 @@
       </svg>
       Nuova sessione
     </button>
-    <div class="status-pill" id="statusPill" onclick="openApiKeyModal()" title="Configura API Key" style="cursor:pointer">
+    <div class="status-pill" id="statusPill" onclick="openApiKeyModal()" style="cursor:pointer">
       <div class="status-dot" id="statusDot"></div>
       <span class="status-lbl" id="statusLbl">AI ONLINE</span>
     </div>
@@ -639,27 +639,6 @@
   </div>
 </div>
 
-<!-- API KEY MODAL -->
-<div class="modal-backdrop open" id="apiKeyModal" style="display:none">
-  <div class="modal" style="max-width:420px;text-align:left">
-    <div class="modal-icon" style="text-align:center">🔑</div>
-    <h3 style="text-align:center">Configura API Key</h3>
-    <p style="text-align:center">Inserisci la tua <strong>Anthropic API Key</strong> per attivare Alfred.<br>Viene salvata solo nel browser (localStorage).</p>
-    <div class="field-group">
-      <label class="field-label">API Key <span class="field-required">*</span></label>
-      <input class="field-input" type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" oninput="document.getElementById('apiKeyErr').textContent=''">&
-      <div id="apiKeyErr" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px;margin-top:4px"></div>
-    </div>
-    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      💡 La chiave non viene mai inviata a server terzi.<br>
-      Puoi cambiarla in qualsiasi momento cliccando sull'icona 🔑 in alto a destra.
-    </div>
-    <div class="modal-btns">
-      <button class="mbtn confirm-blue" onclick="confirmApiKey()">Salva e Continua</button>
-    </div>
-  </div>
-</div>
-
 <!-- ASSIGN MODAL -->
 <div class="modal-backdrop" id="assignModal">
   <div class="modal">
@@ -705,15 +684,6 @@
 // STATE
 // ═══════════════════════════════════════
 // groups: { name: { docs:[{id,name,fileName,size,base64,type}], open:bool } }
-let _apiKey = localStorage.getItem('alfred_api_key') || '';
-
-function getApiKey() { return _apiKey; }
-
-function saveApiKey(key) {
-  _apiKey = key.trim();
-  localStorage.setItem('alfred_api_key', _apiKey);
-}
-
 let groups = {};
 let activeGroup = null;
 let sessionLocked = false;
@@ -1496,48 +1466,6 @@ lockSession = function() {
   renderTree(document.getElementById('searchInput').value);
 };
 
-// ─── API Key Modal ─────────────────────────
-function openApiKeyModal() {
-  const modal = document.getElementById('apiKeyModal');
-  const input = document.getElementById('apiKeyInput');
-  input.value = _apiKey ? '••••••••••••••••' : '';
-  modal.style.display = 'flex';
-  if (!_apiKey) input.focus();
-}
-
-function confirmApiKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val || val === '••••••••••••••••') {
-    if (_apiKey) { closeApiKeyModal(); return; }
-    document.getElementById('apiKeyErr').textContent = 'Inserisci una API key valida';
-    return;
-  }
-  if (!val.startsWith('sk-ant-')) {
-    document.getElementById('apiKeyErr').textContent = 'La chiave deve iniziare con sk-ant-';
-    return;
-  }
-  saveApiKey(val);
-  updateStatusPill();
-  closeApiKeyModal();
-  showToast('API Key salvata ✓', 'success');
-}
-
-function closeApiKeyModal() {
-  document.getElementById('apiKeyModal').style.display = 'none';
-}
-
-function updateStatusPill() {
-  const dot = document.getElementById('statusDot');
-  const lbl = document.getElementById('statusLbl');
-  if (_apiKey) {
-    dot.style.background = 'var(--green)';
-    lbl.textContent = 'AI ONLINE';
-  } else {
-    dot.style.background = 'var(--warn-text)';
-    lbl.textContent = 'CONFIGURA KEY 🔑';
-  }
-}
-
 // ─── Toast notification ───────────────────
 function showToast(msg, type) {
   const existing = document.getElementById('alfredToast');
@@ -1749,12 +1677,65 @@ window.addEventListener('appinstalled', function() {
   </div>
 </div>
 
-</body>
+
+<div class="modal-backdrop" id="apiKeyModal" style="display:none">
+  <div class="modal" style="max-width:420px;text-align:left">
+    <div class="modal-icon" style="text-align:center">&#128273;</div>
+    <h3 style="text-align:center">Configura API Key</h3>
+    <p style="text-align:center">Inserisci la tua <strong>Anthropic API Key</strong>.<br>Salvata solo nel browser locale.</p>
+    <div style="margin-bottom:12px">
+      <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px">API Key *</label>
+      <input class="field-input" type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" style="width:100%">
+      <div id="apiKeyErr" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px;margin-top:4px"></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+      Clicca su AI ONLINE in alto a destra per cambiarla.
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn confirm-blue" onclick="confirmApiKey()">Salva e Continua</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// Init API key on load
-updateStatusPill();
+var _apiKey = localStorage.getItem("alfred_api_key") || "";
+
+function getApiKey() { return _apiKey; }
+
+function openApiKeyModal() {
+  document.getElementById("apiKeyInput").value = "";
+  document.getElementById("apiKeyErr").textContent = "";
+  document.getElementById("apiKeyModal").style.display = "flex";
+  setTimeout(function(){ document.getElementById("apiKeyInput").focus(); }, 100);
+}
+
+function confirmApiKey() {
+  var val = document.getElementById("apiKeyInput").value.trim();
+  if (!val) {
+    if (_apiKey) { document.getElementById("apiKeyModal").style.display = "none"; return; }
+    document.getElementById("apiKeyErr").textContent = "Inserisci una API key valida";
+    return;
+  }
+  if (val.indexOf("sk-ant-") !== 0) {
+    document.getElementById("apiKeyErr").textContent = "La chiave deve iniziare con sk-ant-";
+    return;
+  }
+  _apiKey = val;
+  localStorage.setItem("alfred_api_key", val);
+  document.getElementById("statusDot").style.background = "var(--green)";
+  document.getElementById("statusLbl").textContent = "AI ONLINE";
+  document.getElementById("apiKeyModal").style.display = "none";
+  showToast("API Key salvata", "success");
+}
+
 if (!_apiKey) {
-  setTimeout(() => openApiKeyModal(), 300);
+  window.addEventListener("DOMContentLoaded", function() {
+    setTimeout(openApiKeyModal, 500);
+    document.getElementById("statusDot").style.background = "var(--warn-text)";
+    document.getElementById("statusLbl").textContent = "CONFIGURA KEY";
+  });
 }
 </script>
+
+</body>
 </html>
