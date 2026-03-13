@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alfred">
+  <meta name="theme-color" content="#2f8fd4">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+<title>ALFRED – Lombardi Converting Machinery</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:        #080b10;
+    --surface:   #0d1117;
+    --surface2:  #131a24;
+    --surface3:  #182030;
+    --border:    #1e2a3a;
+    --border2:   #263547;
+    --accent:    #2f8fd4;
+    --accent2:   #1a6faa;
+    --accentGlow:rgba(47,143,212,0.15);
+    --accentSoft:rgba(47,143,212,0.08);
+    --text:      #cdd9e8;
+    --text2:     #8fa3bc;
+    --muted:     #4a6070;
+    --user-bg:   #111e2e;
+    --bot-bg:    #0d1520;
+    --green:     #22c55e;
+    --red:       #ef4444;
+    --warn-bg:   rgba(249,115,22,0.07);
+    --warn-brd:  rgba(249,115,22,0.25);
+    --warn-text: #fb923c;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* ── HEADER ────────────────────────────────── */
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 58px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0; position: relative; z-index: 10;
+  }
+
+  header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+  }
+
+  .logo-block { display: flex; align-items: center; gap: 11px; }
+
+  .logo-icon {
+    width: 36px; height: 36px; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; flex-shrink: 0;
+    box-shadow: 0 0 16px var(--accentGlow);
+  }
+
+  .logo-icon svg { width: 20px; height: 20px; }
+
+  .logo-name { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; color:#fff; line-height:1; }
+  .logo-company { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-top:2px; }
+
+  .h-div { width:1px; height:30px; background:var(--border); flex-shrink:0; }
+
+  .h-badge { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:4px 12px; }
+  .h-badge-lbl { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+  .h-badge-val { font-family:'DM Mono',monospace; font-size:12px; color:var(--accent); font-weight:500; white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+  .h-badge-val.empty { color:var(--muted); }
+
+  .lock-badge {
+    display:none; align-items:center; gap:6px;
+    background:rgba(47,143,212,0.08); border:1px solid rgba(47,143,212,0.25);
+    border-radius:6px; padding:4px 11px;
+    font-family:'DM Mono',monospace; font-size:9px; color:var(--accent); letter-spacing:2px; text-transform:uppercase;
+  }
+  .lock-badge.show { display:flex; }
+  .lock-badge svg { width:11px; height:11px; }
+
+  .h-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+
+  .new-sess-btn {
+    display:none; align-items:center; gap:6px; background:transparent;
+    border:1px solid var(--border); border-radius:6px; padding:6px 12px;
+    color:var(--muted); font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .new-sess-btn.show { display:flex; }
+  .new-sess-btn:hover { border-color:var(--red); color:var(--red); background:rgba(239,68,68,.06); }
+  .new-sess-btn svg { width:11px; height:11px; }
+
+  .status-pill { display:flex; align-items:center; gap:7px; border:1px solid var(--border); border-radius:20px; padding:4px 12px; background:var(--surface2); }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 7px var(--green); animation:blink 2.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .status-lbl { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; }
+
+  /* ── LAYOUT ────────────────────────────────── */
+  .layout { flex:1; display:grid; grid-template-columns:310px 1fr; overflow:hidden; }
+
+  /* ── SIDEBAR ───────────────────────────────── */
+  .sidebar { background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+
+  .sb-head { padding:14px 14px 10px; border-bottom:1px solid var(--border); flex-shrink:0; }
+
+  .sb-title-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .sb-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  .doc-counter { font-family:'DM Mono',monospace; font-size:10px; color:var(--accent); background:var(--accentSoft); border:1px solid rgba(47,143,212,.2); border-radius:10px; padding:1px 8px; display:none; }
+  .doc-counter.show { display:block; }
+
+  .upload-zone {
+    border:1.5px dashed var(--border2); border-radius:8px; padding:12px;
+    text-align:center; cursor:pointer; transition:all .18s; background:var(--bg);
+  }
+  .upload-zone:hover:not(.locked), .upload-zone.over { border-color:var(--accent); background:var(--accentSoft); }
+  .upload-zone.locked { opacity:.28; cursor:not-allowed; pointer-events:none; }
+  .upload-icon { font-size:18px; margin-bottom:4px; }
+  .upload-text { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); line-height:1.55; }
+  .upload-text strong { color:var(--accent); }
+
+  .upload-bar { display:none; margin-top:8px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .upload-bar.show { display:block; }
+  .upload-bar-fill { height:100%; background:var(--accent); width:0%; transition:width .15s; }
+  .upload-bar-lbl { font-family:'DM Mono',monospace; font-size:9px; color:var(--accent); margin-top:4px; text-align:center; display:none; }
+  .upload-bar-lbl.show { display:block; }
+
+  .sb-search { margin-top:8px; display:none; align-items:center; gap:7px; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:6px 10px; transition:border-color .15s; }
+  .sb-search.show { display:flex; }
+  .sb-search:focus-within { border-color:rgba(47,143,212,.4); }
+  .sb-search svg { width:12px; height:12px; color:var(--muted); flex-shrink:0; }
+  .sb-search input { flex:1; background:transparent; border:none; outline:none; font-family:'DM Mono',monospace; font-size:11px; color:var(--text); }
+  .sb-search input::placeholder { color:var(--muted); }
+
+  .sb-lock-banner {
+    display:none; margin:8px 10px 0; align-items:center; gap:7px;
+    background:rgba(47,143,212,.06); border:1px solid rgba(47,143,212,.2);
+    border-radius:6px; padding:7px 10px;
+    font-family:'DM Mono',monospace; font-size:9px; color:var(--accent); letter-spacing:2px;
+  }
+  .sb-lock-banner.show { display:flex; }
+  .sb-lock-banner svg { width:11px; height:11px; flex-shrink:0; }
+
+  /* Tree */
+  .tree { flex:1; overflow-y:auto; padding:10px 8px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .tree::-webkit-scrollbar { width:3px; }
+  .tree::-webkit-scrollbar-thumb { background:var(--border); }
+
+  .sb-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; text-align:center; gap:10px; color:var(--muted); }
+  .sb-empty-icon { font-size:28px; }
+  .sb-empty p { font-family:'DM Mono',monospace; font-size:11px; line-height:1.7; max-width:200px; }
+
+  .group { margin-bottom:3px; }
+
+  .group-hdr {
+    display:flex; align-items:center; gap:8px; padding:8px 10px;
+    border-radius:7px; cursor:pointer; transition:all .14s;
+    border:1px solid transparent; user-select:none;
+  }
+  .group-hdr:hover { background:var(--surface2); border-color:var(--border); }
+  .group-hdr.active { background:var(--accentSoft); border-color:rgba(47,143,212,.3); }
+  .group-hdr.locked-grp:not(.active) { opacity:.22; cursor:not-allowed; pointer-events:none; }
+
+  .grp-arrow { width:14px; height:14px; flex-shrink:0; color:var(--muted); transition:transform .18s; }
+  .group.open .grp-arrow { transform:rotate(90deg); }
+
+  .grp-icon { width:26px; height:26px; border-radius:5px; background:var(--surface3); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+  .group-hdr.active .grp-icon { background:rgba(47,143,212,.15); border-color:rgba(47,143,212,.35); }
+
+  .grp-info { flex:1; min-width:0; }
+  .grp-name { font-family:'DM Mono',monospace; font-size:12px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .group-hdr.active .grp-name { color:var(--accent); }
+  .grp-meta { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); margin-top:1px; }
+
+  .grp-dot { width:5px; height:5px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+  .group-docs { display:none; padding:3px 0 3px 18px; }
+  .group.open .group-docs { display:block; }
+
+  .doc-item {
+    display:flex; align-items:center; gap:7px; padding:5px 10px; border-radius:5px;
+    font-family:'DM Mono',monospace; font-size:11px; color:var(--text2);
+    position:relative;
+  }
+  .doc-item::before { content:''; position:absolute; left:-10px; top:50%; width:8px; height:1px; background:var(--border2); }
+
+  .doc-badge { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; padding:1px 5px; border-radius:3px; text-transform:uppercase; flex-shrink:0; }
+  .doc-badge.machine  { background:rgba(47,143,212,.12); color:var(--accent); border:1px solid rgba(47,143,212,.2); }
+  .doc-badge.component{ background:rgba(100,180,100,.1); color:#6dd47e; border:1px solid rgba(100,180,100,.2); }
+  .doc-badge.drawing  { background:rgba(167,139,250,.1); color:#a78bfa; border:1px solid rgba(167,139,250,.2); }
+  .doc-badge.spare    { background:rgba(251,146,60,.1);  color:#fb923c; border:1px solid rgba(251,146,60,.2); }
+  .doc-badge.other    { background:rgba(180,180,100,.1); color:#c8c86e; border:1px solid rgba(180,180,100,.2); }
+
+  .doc-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .doc-size { font-size:9px; color:var(--muted); flex-shrink:0; }
+
+  /* ── CHAT PANEL ────────────────────────────── */
+  .chat-panel { display:flex; flex-direction:column; overflow:hidden; }
+
+  .topics-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 18px; display:flex; gap:7px; overflow-x:auto; flex-shrink:0; scrollbar-width:none; }
+  .topics-bar::-webkit-scrollbar { display:none; }
+  .topic-chip { flex-shrink:0; background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:4px 13px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text); cursor:pointer; transition:all .14s; white-space:nowrap; }
+  .topic-chip:hover { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); }
+
+  .chat-area { flex:1; overflow-y:auto; padding:22px; display:flex; flex-direction:column; gap:16px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .chat-area::-webkit-scrollbar { width:4px; }
+  .chat-area::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  /* Screen center (welcome/empty) */
+  .screen-c { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:40px; min-height:300px; }
+  .screen-icon { width:64px; height:64px; border-radius:14px; background:linear-gradient(135deg,var(--accentSoft),rgba(47,143,212,.15)); border:1px solid rgba(47,143,212,.25); display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 0 30px var(--accentGlow); }
+  .screen-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:var(--text); }
+  .screen-sub { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); line-height:1.7; max-width:380px; }
+
+  .step-pills { display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
+  .step-pill { display:flex; align-items:center; gap:8px; padding:8px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+  .step-n { width:18px; height:18px; border-radius:4px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  /* Welcome card */
+  .wcard { background:linear-gradient(135deg,var(--surface2) 0%,#0a1220 100%); border:1px solid var(--border); border-radius:12px; padding:20px; max-width:620px; margin:0 auto; width:100%; }
+  .wc-title { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:var(--accent); line-height:1; margin-bottom:3px; }
+  .wc-sub { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:12px; }
+  .wc-docs { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+  .wc-chip { display:flex; align-items:center; gap:5px; background:var(--bg); border:1px solid var(--border); border-radius:5px; padding:4px 9px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text2); }
+  .wc-desc { font-size:13px; color:#7a92b0; line-height:1.6; margin-bottom:14px; }
+  .wc-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .wc-item { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:9px 11px; font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); cursor:pointer; transition:all .14s; }
+  .wc-item:hover { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); }
+  .wc-item::before { content:'→ '; opacity:.5; }
+
+  /* Messages */
+  .msg { display:flex; gap:11px; max-width:880px; animation:fadeUp .22s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { margin-left:auto; flex-direction:row-reverse; }
+
+  .avatar { width:30px; height:30px; border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; margin-top:2px; }
+  .avatar.bot { background:var(--accent); color:#fff; font-family:'Bebas Neue',sans-serif; font-size:11px; letter-spacing:1px; }
+  .avatar.user { background:var(--user-bg); border:1px solid var(--border); color:var(--muted); }
+
+  .bubble { background:var(--bot-bg); border:1px solid var(--border); border-radius:11px; padding:12px 15px; line-height:1.65; color:var(--text); max-width:700px; }
+  .msg.user .bubble { background:var(--user-bg); border-color:#1e3050; color:#b8d0ea; }
+  .bubble strong { color:var(--accent); font-weight:500; }
+
+  .bubble .warn { display:flex; align-items:flex-start; gap:7px; background:var(--warn-bg); border:1px solid var(--warn-brd); border-radius:6px; padding:8px 11px; color:var(--warn-text); font-size:12px; margin-top:9px; width:100%; line-height:1.5; }
+
+  .bubble .info-box { background:var(--accentSoft); border-left:3px solid var(--accent); padding:9px 13px; margin-top:9px; border-radius:0 6px 6px 0; font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); }
+  .bubble .info-row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(47,143,212,.07); }
+  .bubble .info-row:last-child { border-bottom:none; }
+  .bubble .info-key { color:var(--muted); }
+  .bubble .info-val { color:var(--accent); }
+
+  .bubble ol,.bubble ul { padding-left:20px; margin-top:8px; display:flex; flex-direction:column; gap:5px; }
+  .bubble li { color:var(--text); }
+
+  .step-list { list-style:none !important; padding-left:0 !important; }
+  .step-list li { display:flex; gap:9px; align-items:flex-start; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .step-list li:last-child { border-bottom:none; }
+  .step-badge { background:var(--accent); color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; width:19px; height:19px; border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+
+  .typing-ind { display:flex; gap:5px; align-items:center; padding:6px 2px; }
+  .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:td 1.2s ease infinite; }
+  .typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes td { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+  /* Input */
+  .input-area { background:var(--surface); border-top:1px solid var(--border); padding:13px 20px 15px; flex-shrink:0; }
+  .input-row { display:flex; gap:9px; align-items:flex-end; background:var(--surface2); border:1px solid var(--border); border-radius:11px; padding:9px 13px; transition:border-color .18s; }
+  .input-row:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px var(--accentGlow); }
+  textarea { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; resize:none; min-height:22px; max-height:120px; line-height:1.5; scrollbar-width:thin; }
+  textarea::placeholder { color:var(--muted); }
+  .send-btn { width:34px; height:34px; background:var(--accent); border:none; border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .14s; box-shadow:0 2px 10px var(--accentGlow); }
+  .send-btn:hover:not(:disabled) { background:#3aa0e8; transform:scale(1.05); }
+  .send-btn:disabled { background:var(--border); cursor:not-allowed; transform:none; box-shadow:none; }
+  .send-btn svg { width:15px; height:15px; }
+
+  .support-btn { width:34px; height:34px; background:var(--surface3); border:1px solid var(--border2); border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .14s; color:var(--muted); }
+  .support-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); background:var(--accentSoft); transform:scale(1.05); }
+  .support-btn:disabled { opacity:.35; cursor:not-allowed; }
+  .support-btn svg { width:15px; height:15px; }
+  .input-footer { margin-top:6px; font-size:10px; color:var(--muted); text-align:center; font-family:'DM Mono',monospace; letter-spacing:1px; }
+
+  /* ── MODALS ─────────────────────────────────── */
+  .modal-backdrop { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.82); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
+  .modal-backdrop.open { display:flex; }
+  .modal { background:var(--surface2); border:1px solid var(--border2); border-radius:14px; padding:28px 26px; max-width:380px; width:90%; text-align:center; animation:pop .18s ease; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+  @keyframes pop { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+  .modal-icon { font-size:30px; margin-bottom:10px; }
+  .modal h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; color:var(--text); margin-bottom:8px; }
+  .modal p { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); line-height:1.7; margin-bottom:20px; }
+  .modal p strong { color:var(--accent); font-weight:500; }
+  .modal-btns { display:flex; gap:10px; justify-content:center; }
+  .mbtn { padding:9px 20px; border-radius:7px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .14s; border:1px solid var(--border); }
+  .mbtn.cancel { background:var(--surface); color:var(--muted); }
+  .mbtn.cancel:hover { color:var(--text); border-color:var(--border2); }
+  .mbtn.confirm-blue { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .mbtn.confirm-blue:hover { background:#3aa0e8; }
+  .mbtn.confirm-red { background:var(--red); border-color:var(--red); color:#fff; }
+  .mbtn.confirm-red:hover { background:#dc2626; }
+
+  /* ── ROLE BADGE ─────────────────────────── */
+  .role-badge {
+    display:flex; align-items:center; gap:6px;
+    border-radius:6px; padding:4px 12px;
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    cursor:pointer; transition:all .15s; border:1px solid;
+    user-select:none;
+  }
+
+  .role-badge.operator {
+    background:rgba(34,197,94,.07); border-color:rgba(34,197,94,.25); color:#22c55e;
+  }
+
+  .role-badge.technician {
+    background:rgba(249,115,22,.08); border-color:rgba(249,115,22,.3); color:#fb923c;
+  }
+
+  .role-badge svg { width:11px; height:11px; }
+
+  /* PIN modal */
+  .pin-input {
+    width:100%; text-align:center; letter-spacing:6px;
+    font-family:'DM Mono',monospace; font-size:20px; font-weight:500;
+    background:var(--bg); border:1px solid var(--border); border-radius:8px;
+    padding:12px; color:var(--text); outline:none; margin-bottom:8px;
+    transition:border-color .15s;
+  }
+  .pin-input:focus { border-color:var(--accent); }
+  .pin-error { font-family:'DM Mono',monospace; font-size:11px; color:var(--red); min-height:16px; margin-bottom:12px; }
+
+  /* ── SUPPORT MODAL ───────────────────────── */
+  .modal.wide { max-width:500px; text-align:left; }
+  .modal.wide h3 { text-align:center; }
+  .modal.wide .modal-icon { text-align:center; }
+
+  .field-group { margin-bottom:12px; }
+  .field-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; display:block; }
+  .field-required { color:var(--accent); }
+
+  .field-input, .field-select, .field-textarea {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:6px; padding:9px 12px; color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:13px; outline:none;
+    transition:border-color .15s;
+  }
+  .field-input:focus, .field-select:focus, .field-textarea:focus { border-color:var(--accent); }
+  .field-textarea { resize:vertical; min-height:90px; max-height:180px; }
+  .field-select { cursor:pointer; }
+
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .type-pills { display:flex; gap:8px; flex-wrap:wrap; }
+  .type-pill {
+    flex:1; min-width:120px; padding:10px 12px; border-radius:7px;
+    border:1px solid var(--border); background:var(--bg);
+    font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+    cursor:pointer; transition:all .14s; text-align:center;
+  }
+  .type-pill:hover { border-color:var(--accent); color:var(--accent); }
+  .type-pill.active { background:var(--accentSoft); border-color:var(--accent); color:var(--accent); }
+  .type-pill .pill-icon { font-size:18px; display:block; margin-bottom:4px; }
+
+  .mail-preview {
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:10px 12px; font-family:'DM Mono',monospace; font-size:11px;
+    color:var(--muted); line-height:1.6; margin-bottom:14px;
+  }
+  .mail-preview strong { color:var(--accent); }
+
+  /* Step tabs */
+  .smodal-step {
+    flex:1; padding:8px 4px; text-align:center; cursor:pointer;
+    background:var(--bg); color:var(--muted);
+    border-right:1px solid var(--border); transition:all .15s;
+  }
+  .smodal-step:last-child { border-right:none; }
+  .smodal-step.active { background:var(--accentSoft); color:var(--accent); }
+  .smodal-step:hover:not(.active) { background:var(--surface2); color:var(--text); }
+
+  /* Catalog grid */
+  .catalog-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    max-height:280px; overflow-y:auto;
+    scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+    padding:2px;
+  }
+  .catalog-grid::-webkit-scrollbar { width:3px; }
+  .catalog-grid::-webkit-scrollbar-thumb { background:var(--border); }
+
+  .catalog-card {
+    border:1.5px solid var(--border); border-radius:8px;
+    background:var(--bg); cursor:pointer; transition:all .16s;
+    overflow:hidden; position:relative;
+  }
+  .catalog-card:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .catalog-card.selected { border-color:var(--accent); background:var(--accentSoft); box-shadow:0 0 0 2px var(--accentGlow); }
+
+  .catalog-thumb {
+    width:100%; aspect-ratio:210/297; /* A4 ratio */
+    background:var(--surface2);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; position:relative;
+  }
+
+  .catalog-thumb canvas { width:100% !important; height:auto !important; display:block; }
+
+  .catalog-thumb-loading {
+    font-size:22px; animation:spin 1.5s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .catalog-thumb-fallback { font-size:28px; }
+
+  .catalog-info {
+    padding:6px 8px;
+    border-top:1px solid var(--border);
+  }
+  .catalog-name {
+    font-family:'DM Mono',monospace; font-size:10px; color:var(--text2);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .catalog-type-badge {
+    font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px;
+    padding:1px 5px; border-radius:3px; text-transform:uppercase;
+    margin-top:3px; display:inline-block;
+  }
+
+  .catalog-check {
+    position:absolute; top:5px; right:5px;
+    width:18px; height:18px; border-radius:4px;
+    background:var(--accent); color:#fff;
+    font-size:11px; display:none;
+    align-items:center; justify-content:center;
+    font-weight:bold;
+  }
+  .catalog-card.selected .catalog-check { display:flex; }
+  .assign-input {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:6px; padding:8px 12px; color:var(--text);
+    font-family:'DM Mono',monospace; font-size:12px; outline:none;
+    transition:border-color .15s;
+  }
+  .assign-input:focus { border-color:var(--accent); }
+
+  .assign-suggestions {
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:0 0 6px 6px; overflow:hidden; display:none;
+    max-height:130px; overflow-y:auto;
+    margin-top:-1px;
+  }
+
+  .sugg-item {
+    padding:8px 12px; font-family:'DM Mono',monospace;
+    font-size:12px; color:var(--text); cursor:pointer;
+    border-bottom:1px solid var(--border); transition:background .12s;
+  }
+  .sugg-item:last-child { border-bottom:none; }
+  .sugg-item:hover { background:var(--surface2); }
+
+  .assign-select {
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:6px; padding:8px 12px; color:var(--text);
+    font-family:'DM Mono',monospace; font-size:12px; outline:none;
+    margin-top:8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-block">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <circle cx="12" cy="10" r="3"/>
+        <path d="M7 10h2M15 10h2M8 21h8M12 17v4"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">ALFRED</div>
+      <div class="logo-company">Lombardi Converting Machinery</div>
+    </div>
+  </div>
+
+  <div class="h-div"></div>
+
+  <div class="h-badge">
+    <div class="h-badge-lbl">Macchina attiva</div>
+    <div class="h-badge-val empty" id="hMachine">— nessuna selezionata</div>
+  </div>
+
+  <div class="h-badge" id="hDocsWrap" style="display:none">
+    <div class="h-badge-lbl">Documenti attivi</div>
+    <div class="h-badge-val" id="hDocs">0 doc</div>
+  </div>
+
+  <div class="lock-badge" id="lockBadge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    Sessione attiva
+  </div>
+
+  <div class="h-right">
+    <div class="role-badge operator" id="roleBadge" onclick="handleRoleClick()" title="Clicca per cambiare ruolo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span id="roleBadgeText">Operatore</span>
+    </div>
+    <button class="new-sess-btn" id="newSessBtn" onclick="openResetModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+      </svg>
+      Nuova sessione
+    </button>
+    <div class="status-pill" id="statusPill" onclick="openApiKeyModal()" title="Configura API Key" style="cursor:pointer">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-lbl" id="statusLbl">AI ONLINE</span>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-title-row">
+        <div class="sb-title">Libreria Manuali</div>
+        <div class="doc-counter" id="docCounter">0</div>
+      </div>
+
+      <div class="upload-zone" id="uploadZone"
+           onclick="triggerUpload()"
+           ondragover="onDragOver(event)"
+           ondragleave="onDragLeave()"
+           ondrop="onDrop(event)">
+        <div class="upload-icon">📂</div>
+        <div class="upload-text"><strong>Aggiungi PDF</strong><br>macchina · componente · accessorio</div>
+        <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
+        <div class="upload-bar-lbl" id="uploadBarLbl"></div>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf" multiple style="display:none" onchange="handleFiles(this.files);this.value=''">
+
+      <div class="sb-search" id="sbSearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Cerca macchina…" oninput="renderTree(this.value)">
+      </div>
+    </div>
+
+    <div class="sb-lock-banner" id="sbLockBanner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Sessione bloccata — macchina fissa
+    </div>
+
+    <div class="tree" id="tree">
+      <div class="sb-empty"><div class="sb-empty-icon">📋</div><p>Carica i PDF dei manuali e assegnali a una macchina.</p></div>
+    </div>
+  </aside>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel">
+    <div class="topics-bar" id="topicsBar" style="display:none">
+      <span class="topic-chip" onclick="quickAsk('Come si avvia la macchina?')">⚡ Avvio</span>
+      <span class="topic-chip" onclick="quickAsk('Come si imposta un nuovo lavoro di stampa?')">🖨 Nuovo lavoro</span>
+      <span class="topic-chip" onclick="quickAsk('Come si carica un lavoro salvato?')">💾 Carica lavoro</span>
+      <span class="topic-chip" onclick="quickAsk('Come funziona il controllo registro?')">🎯 Registro</span>
+      <span class="topic-chip" onclick="quickAsk('Come funziona lo svolgitore?')">🔄 Svolgitore</span>
+      <span class="topic-chip" onclick="quickAsk('Come funziona l\'avvolgitore?')">🔄 Avvolgitore</span>
+      <span class="topic-chip" onclick="quickAsk('Come funziona il sistema di essiccazione UV?')">💡 UV</span>
+      <span class="topic-chip" onclick="quickAsk('Come funziona il trattamento corona?')">⚡ Corona</span>
+      <span class="topic-chip" onclick="quickAsk('Come si regola la racla?')">⚙️ Racla</span>
+      <span class="topic-chip" onclick="quickAsk('Quali sono le norme di sicurezza?')">🦺 Sicurezza</span>
+      <span class="topic-chip" onclick="quickAsk('Qual è il piano di manutenzione preventiva?')">🔧 Manutenzione</span>
+      <span class="topic-chip" onclick="quickAsk('Come gestire un arresto di emergenza?')">🛑 Emergenza</span>
+      <span class="topic-chip" onclick="quickAsk('Quali sono le specifiche tecniche?')">📊 Specifiche</span>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="screen-c">
+        <div class="screen-icon">🎩</div>
+        <div class="screen-title">Benvenuto in Alfred</div>
+        <div class="screen-sub">Assistente tecnico Lombardi Converting Machinery.<br>Carica i PDF dei manuali, assegnali alla macchina, e inizia.</div>
+        <div class="step-pills">
+          <div class="step-pill"><div class="step-n">1</div>Carica i PDF</div>
+          <div class="step-pill"><div class="step-n">2</div>Assegna alla macchina</div>
+          <div class="step-pill"><div class="step-n">3</div>Seleziona e chiedi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="userInput" rows="1"
+          placeholder="Seleziona una macchina dalla sidebar…"
+          onkeydown="handleKey(event)" oninput="autoResize(this)" disabled></textarea>
+        <button class="support-btn" id="supportBtn" onclick="openSupportModal()" title="Richiedi assistenza o ricambio" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.36 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.95-1.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 14.92z"/>
+          </svg>
+        </button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-footer">Alfred · Lombardi Converting Machinery · <span onclick="openSupportModal()" style="color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px">Richiedi assistenza o ricambio</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal-backdrop open" id="apiKeyModal" style="display:none">
+  <div class="modal" style="max-width:420px;text-align:left">
+    <div class="modal-icon" style="text-align:center">🔑</div>
+    <h3 style="text-align:center">Configura API Key</h3>
+    <p style="text-align:center">Inserisci la tua <strong>Anthropic API Key</strong> per attivare Alfred.<br>Viene salvata solo nel browser (localStorage).</p>
+    <div class="field-group">
+      <label class="field-label">API Key <span class="field-required">*</span></label>
+      <input class="field-input" type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" oninput="document.getElementById('apiKeyErr').textContent=''">&
+      <div id="apiKeyErr" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px;margin-top:4px"></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+      💡 La chiave non viene mai inviata a server terzi.<br>
+      Puoi cambiarla in qualsiasi momento cliccando sull'icona 🔑 in alto a destra.
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn confirm-blue" onclick="confirmApiKey()">Salva e Continua</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-backdrop" id="assignModal">
+  <div class="modal">
+    <div class="modal-icon">📄</div>
+    <h3>Assegna Manuale</h3>
+    <p id="assignDesc">A quale macchina appartiene questo documento?</p>
+    <div style="margin-bottom:16px;text-align:left">
+      <input class="assign-input" type="text" id="assignInput"
+        placeholder="Nome macchina (es. INVICTA I1-670)"
+        oninput="refreshSugg(this.value)"
+        onfocus="refreshSugg(this.value)">
+      <div class="assign-suggestions" id="assignSugg"></div>
+      <select class="assign-select" id="assignType">
+        <option value="machine">📘 Manuale macchina principale</option>
+        <option value="component">🔧 Manuale componente / accessorio</option>
+        <option value="drawing">📐 Disegno meccanico / esploso</option>
+        <option value="spare">🔩 Catalogo ricambi</option>
+        <option value="other">📄 Altro documento tecnico</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="skipAssign()">Salta</button>
+      <button class="mbtn confirm-blue" onclick="confirmAssign()">Assegna</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="modal-backdrop" id="resetModal" onclick="closeReset(event)">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <h3>Nuova Sessione?</h3>
+    <p>La conversazione con <strong id="resetMachine">—</strong> verrà cancellata.<br>I manuali resteranno caricati ma la sessione si sblocca.</p>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeReset()">Annulla</button>
+      <button class="mbtn confirm-red" onclick="doReset()">Sì, ricomincia</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+// groups: { name: { docs:[{id,name,fileName,size,base64,type}], open:bool } }
+let _apiKey = localStorage.getItem('alfred_api_key') || '';
+
+function getApiKey() { return _apiKey; }
+
+function saveApiKey(key) {
+  _apiKey = key.trim();
+  localStorage.setItem('alfred_api_key', _apiKey);
+}
+
+let groups = {};
+let activeGroup = null;
+let sessionLocked = false;
+let isLoading = false;
+let chatHistory = [];
+
+// assign queue
+let assignQueue = [];
+let assignCurrent = null;
+
+// ═══════════════════════════════════════
+// UPLOAD
+// ═══════════════════════════════════════
+function triggerUpload() { if (!sessionLocked) document.getElementById('fileInput').click(); }
+function onDragOver(e) { e.preventDefault(); if (!sessionLocked) document.getElementById('uploadZone').classList.add('over'); }
+function onDragLeave() { document.getElementById('uploadZone').classList.remove('over'); }
+function onDrop(e) { e.preventDefault(); document.getElementById('uploadZone').classList.remove('over'); if (!sessionLocked) handleFiles(e.dataTransfer.files); }
+
+async function handleFiles(files) {
+  const pdfs = Array.from(files).filter(f => f.type === 'application/pdf');
+  if (!pdfs.length) return;
+
+  // Dedup across all groups
+  const existing = new Set(Object.values(groups).flatMap(g => g.docs.map(d => d.fileName)));
+  const fresh = pdfs.filter(f => !existing.has(f.name));
+  if (!fresh.length) return;
+
+  const bar = document.getElementById('uploadBar');
+  const fill = document.getElementById('uploadBarFill');
+  const lbl = document.getElementById('uploadBarLbl');
+  bar.classList.add('show'); lbl.classList.add('show');
+
+  const loaded = [];
+  for (let i = 0; i < fresh.length; i++) {
+    lbl.textContent = `${i+1}/${fresh.length} — ${fresh[i].name}`;
+    fill.style.width = ((i / fresh.length) * 100) + '%';
+    const base64 = await toBase64(fresh[i]);
+    loaded.push({ file: fresh[i], base64 });
+  }
+
+  fill.style.width = '100%';
+  lbl.textContent = `✓ ${fresh.length} file pronti`;
+  setTimeout(() => { bar.classList.remove('show'); lbl.classList.remove('show'); fill.style.width = '0%'; }, 1400);
+
+  assignQueue = loaded;
+  nextAssign();
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════
+// ASSIGN MODAL
+// ═══════════════════════════════════════
+function nextAssign() {
+  if (!assignQueue.length) { renderTree(); updateCounters(); return; }
+  assignCurrent = assignQueue.shift();
+  document.getElementById('assignDesc').innerHTML =
+    `A quale macchina appartiene <strong style="color:var(--accent)">${esc(assignCurrent.file.name)}</strong>?`;
+  document.getElementById('assignInput').value = activeGroup || '';
+  document.getElementById('assignType').value = 'machine';
+  refreshSugg(activeGroup || '');
+  document.getElementById('assignModal').classList.add('open');
+}
+
+function refreshSugg(q) {
+  const box = document.getElementById('assignSugg');
+  const names = Object.keys(groups);
+  const matches = q ? names.filter(n => n.toLowerCase().includes(q.toLowerCase())) : names;
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = matches.map(n =>
+    `<div class="sugg-item" onclick="pickSugg('${esc(n)}')">
+       🏭 ${esc(n)} <span style="color:var(--muted);font-size:10px">(${groups[n].docs.length} doc)</span>
+     </div>`
+  ).join('');
+}
+
+function pickSugg(name) {
+  document.getElementById('assignInput').value = name;
+  document.getElementById('assignSugg').style.display = 'none';
+}
+
+function confirmAssign() {
+  if (!assignCurrent) return;
+  let gName = document.getElementById('assignInput').value.trim() || 'Non classificato';
+  const type = document.getElementById('assignType').value;
+  if (!groups[gName]) groups[gName] = { docs: [], open: true };
+  groups[gName].docs.push({
+    id: 'doc_' + Date.now() + Math.random(),
+    name: assignCurrent.file.name.replace(/\.pdf$/i,'').replace(/[-_]/g,' '),
+    fileName: assignCurrent.file.name,
+    size: fmtSize(assignCurrent.file.size),
+    base64: assignCurrent.base64,
+    type
+  });
+  document.getElementById('assignModal').classList.remove('open');
+  assignCurrent = null;
+  // Auto-select if this is the first group
+  if (!activeGroup && Object.keys(groups).length === 1) selectGroup(gName);
+  renderTree(); updateCounters();
+  nextAssign();
+}
+
+function skipAssign() {
+  document.getElementById('assignInput').value = activeGroup || 'Non classificato';
+  confirmAssign();
+}
+
+// ═══════════════════════════════════════
+// TREE
+// ═══════════════════════════════════════
+function renderTree(filter) {
+  const tree = document.getElementById('tree');
+  const names = Object.keys(groups);
+  if (!names.length) {
+    tree.innerHTML = '<div class="sb-empty"><div class="sb-empty-icon">📋</div><p>Carica i PDF dei manuali e assegnali a una macchina.</p></div>';
+    return;
+  }
+  const q = (filter || '').toLowerCase().trim();
+  const filtered = names.filter(n => !q || n.toLowerCase().includes(q) || groups[n].docs.some(d => d.name.toLowerCase().includes(q)));
+
+  tree.innerHTML = filtered.map(name => {
+    const g = groups[name];
+    const isActive = activeGroup === name;
+    const isLocked = sessionLocked && !isActive;
+    const counts = g.docs.reduce((a,d) => { a[d.type]=(a[d.type]||0)+1; return a; }, {});
+    const meta = [
+      counts.machine&&`${counts.machine} man.`,
+      counts.component&&`${counts.component} comp.`,
+      counts.drawing&&`${counts.drawing} dis.`,
+      counts.spare&&`${counts.spare} ric.`,
+      counts.other&&`${counts.other} altri`
+    ].filter(Boolean).join(' · ');
+
+    const badgeLabel = d => d.type==='machine'?'man.':d.type==='component'?'comp.':d.type==='drawing'?'dis.':d.type==='spare'?'ric.':'altro';
+
+    const docsHtml = g.docs.map(d => `
+      <div class="doc-item">
+        <span class="doc-badge ${d.type}">${badgeLabel(d)}</span>
+        <span class="doc-name" title="${esc(d.fileName)}">${esc(d.name)}</span>
+        <span class="doc-size">${d.size}</span>
+      </div>`).join('');
+
+    return `
+      <div class="group${g.open?' open':''}" id="grp_${esc(name)}">
+        <div class="group-hdr${isActive?' active':''}${isLocked?' locked-grp':''}" onclick="selectGroup('${esc(name)}')">
+          <svg class="grp-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <div class="grp-icon">🏭</div>
+          <div class="grp-info">
+            <div class="grp-name">${esc(name)}</div>
+            <div class="grp-meta">${g.docs.length} doc · ${meta}</div>
+          </div>
+          <div class="grp-dot"></div>
+        </div>
+        <div class="group-docs">${docsHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// GROUP SELECTION
+// ═══════════════════════════════════════
+function selectGroup(name) {
+  if (sessionLocked && activeGroup && activeGroup !== name) return;
+
+  // Toggle collapse if already active
+  if (activeGroup === name) {
+    groups[name].open = !groups[name].open;
+    renderTree(document.getElementById('searchInput').value);
+    return;
+  }
+
+  activeGroup = name;
+  groups[name].open = true;
+  chatHistory = [];
+
+  // Header
+  const hm = document.getElementById('hMachine');
+  hm.textContent = name; hm.classList.remove('empty');
+  const hw = document.getElementById('hDocsWrap');
+  hw.style.display = 'block';
+  document.getElementById('hDocs').textContent = groups[name].docs.length + ' doc';
+
+  // Input
+  const inp = document.getElementById('userInput');
+  inp.disabled = false;
+  inp.placeholder = `Chiedi ad Alfred su ${name}…`;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('supportBtn').disabled = false;
+
+  // Topics
+  document.getElementById('topicsBar').style.display = 'flex';
+
+  // Welcome card
+  renderWelcome(name);
+  renderTree(document.getElementById('searchInput').value);
+}
+
+function renderWelcome(name) {
+  const g = groups[name];
+  const area = document.getElementById('chatArea');
+  area.innerHTML = '';
+  const chips = g.docs.map(d => {
+    const icon = d.type==='machine'?'📘':d.type==='component'?'🔧':'📄';
+    return `<div class="wc-chip"><span>${icon}</span>${esc(d.name)}</div>`;
+  }).join('');
+  const card = document.createElement('div');
+  card.className = 'wcard';
+  card.innerHTML = `
+    <div class="wc-title">Ciao, Operatore 👋</div>
+    <div class="wc-sub">${esc(name)} · ${g.docs.length} manuali disponibili</div>
+    <div class="wc-docs">${chips}</div>
+    <p class="wc-desc">Alfred ha accesso a tutti i documenti elencati. Puoi fare domande su macchina principale, componenti, manutenzione, sicurezza — Alfred saprà da quale manuale attingere.</p>
+    <div class="wc-grid">
+      <div class="wc-item" onclick="quickAsk('Come si avvia la macchina?')">Procedura di avvio</div>
+      <div class="wc-item" onclick="quickAsk('Come si imposta un nuovo lavoro?')">Impostazione nuovo lavoro</div>
+      <div class="wc-item" onclick="quickAsk('Quali sono le norme di sicurezza?')">Norme di sicurezza</div>
+      <div class="wc-item" onclick="quickAsk('Qual è il piano di manutenzione?')">Manutenzione preventiva</div>
+    </div>`;
+  area.appendChild(card);
+}
+
+// ═══════════════════════════════════════
+// COUNTERS
+// ═══════════════════════════════════════
+function updateCounters() {
+  const total = Object.values(groups).reduce((s,g) => s+g.docs.length, 0);
+  const ctr = document.getElementById('docCounter');
+  const srch = document.getElementById('sbSearch');
+  if (total > 0) { ctr.textContent = total + ' doc'; ctr.classList.add('show'); }
+  else ctr.classList.remove('show');
+  if (Object.keys(groups).length >= 4) srch.classList.add('show');
+  else srch.classList.remove('show');
+}
+
+// ═══════════════════════════════════════
+// SESSION LOCK / RESET
+// ═══════════════════════════════════════
+function lockSession() {
+  sessionLocked = true;
+  document.getElementById('lockBadge').classList.add('show');
+  document.getElementById('newSessBtn').classList.add('show');
+  document.getElementById('uploadZone').classList.add('locked');
+  document.getElementById('sbLockBanner').classList.add('show');
+  renderTree(document.getElementById('searchInput').value);
+}
+
+function openResetModal() {
+  document.getElementById('resetMachine').textContent = activeGroup || '—';
+  document.getElementById('resetModal').classList.add('open');
+}
+
+function closeReset(e) {
+  if (e && e.target !== document.getElementById('resetModal')) return;
+  document.getElementById('resetModal').classList.remove('open');
+}
+
+function doReset() {
+  // Keep groups/docs, just reset session state
+  activeGroup = null;
+  sessionLocked = false;
+  isLoading = false;
+  chatHistory = [];
+
+  // Header
+  const hm = document.getElementById('hMachine');
+  hm.textContent = '— nessuna selezionata'; hm.classList.add('empty');
+  document.getElementById('hDocsWrap').style.display = 'none';
+  document.getElementById('lockBadge').classList.remove('show');
+  document.getElementById('newSessBtn').classList.remove('show');
+
+  // Sidebar
+  document.getElementById('uploadZone').classList.remove('locked');
+  document.getElementById('sbLockBanner').classList.remove('show');
+  renderTree(document.getElementById('searchInput').value);
+
+  // Topics + input
+  document.getElementById('topicsBar').style.display = 'none';
+  const inp = document.getElementById('userInput');
+  inp.value = ''; inp.disabled = true;
+  inp.placeholder = 'Seleziona una macchina dalla sidebar…';
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('supportBtn').disabled = true;
+
+  // Chat
+  document.getElementById('chatArea').innerHTML = `
+    <div class="screen-c">
+      <div class="screen-icon">🎩</div>
+      <div class="screen-title">Benvenuto in Alfred</div>
+      <div class="screen-sub">Assistente tecnico Lombardi Converting Machinery.<br>Carica i PDF dei manuali, assegnali alla macchina, e inizia.</div>
+      <div class="step-pills">
+        <div class="step-pill"><div class="step-n">1</div>Carica i PDF</div>
+        <div class="step-pill"><div class="step-n">2</div>Assegna alla macchina</div>
+        <div class="step-pill"><div class="step-n">3</div>Seleziona e chiedi</div>
+      </div>
+    </div>`;
+
+  document.getElementById('resetModal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function handleKey(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} }
+function quickAsk(t) { if (!activeGroup) return; document.getElementById('userInput').value=t; sendMessage(); }
+
+function appendMsg(role, content, isHtml) {
+  const area = document.getElementById('chatArea');
+  area.querySelector('.wcard')?.remove();
+  const row = document.createElement('div'); row.className = `msg ${role}`;
+  const av = document.createElement('div'); av.className = `avatar ${role}`;
+  av.textContent = role==='bot'?'🎩':'👤';
+  const bub = document.createElement('div'); bub.className = 'bubble';
+  if (isHtml) bub.innerHTML = content; else bub.textContent = content;
+  row.appendChild(av); row.appendChild(bub);
+  area.appendChild(row); area.scrollTop = area.scrollHeight;
+}
+
+function showTyping() {
+  const area = document.getElementById('chatArea');
+  const row = document.createElement('div'); row.className='msg bot'; row.id='typing';
+  const av = document.createElement('div'); av.className='avatar bot'; av.textContent='🎩';
+  const bub = document.createElement('div'); bub.className='bubble';
+  bub.innerHTML='<div class="typing-ind"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  row.appendChild(av); row.appendChild(bub); area.appendChild(row); area.scrollTop=area.scrollHeight;
+}
+
+function removeTyping() { document.getElementById('typing')?.remove(); }
+
+function fmtReply(text) {
+  let h = text;
+  h = h.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  ['⚠️','WARNING:','ATTENZIONE:','ATTENTION:','CAUTION:'].forEach(w => {
+    if (w==='⚠️') h = h.replace(/(⚠️[^\n]+)/g,'<div class="warn">$1</div>');
+    else h = h.replace(new RegExp(`(${w}[^\n]+)`,'g'),`<div class="warn">⚠️ $1</div>`);
+  });
+  const lines = h.split('\n'); let out=[], inList=false, listHtml='';
+  for (const line of lines) {
+    const m = line.match(/^(\d+)\.\s+(.+)/);
+    if (m) {
+      if (!inList){inList=true;listHtml='<ol class="step-list">';}
+      listHtml += `<li><span class="step-badge">${m[1]}</span><span>${m[2]}</span></li>`;
+    } else {
+      if (inList){listHtml+='</ol>';out.push(listHtml);inList=false;listHtml='';}
+      out.push(line);
+    }
+  }
+  if (inList){listHtml+='</ol>';out.push(listHtml);}
+  h = out.join('\n');
+  h = h.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');
+  return '<p>'+h+'</p>'.replace(/<p><\/p>/g,'');
+}
+
+async function sendMessage() {
+  if (isLoading || !activeGroup) return;
+  const inp = document.getElementById('userInput');
+  const text = inp.value.trim(); if (!text) return;
+  inp.value=''; inp.style.height='auto';
+  if (!sessionLocked) lockSession();
+
+  appendMsg('user', text, false);
+  chatHistory.push({ role:'user', content:text });
+  isLoading=true; document.getElementById('sendBtn').disabled=true;
+  showTyping();
+
+  try {
+    const g = groups[activeGroup];
+    const docList = g.docs.map((d,i) =>
+      `${i+1}. [${d.type==='machine'?'MACCHINA':d.type==='component'?'COMPONENTE':'DOCUMENTO'}] "${d.name}" (${d.fileName})`
+    ).join('\n');
+
+    const system = `Sei Alfred, assistente tecnico di Lombardi Converting Machinery S.p.A., azienda produttrice di macchine da stampa flexografica con sede a Brescia, Italia.
+
+Stai assistendo un operatore per la macchina/impianto: "${activeGroup}".
+
+Hai accesso ai seguenti documenti tecnici caricati dall'utente:
+${docList}
+
+ISTRUZIONI OPERATIVE:
+1. Rispondi ESCLUSIVAMENTE sulla base delle informazioni presenti nei documenti forniti. Se un'informazione non è disponibile, dillo chiaramente e suggerisci di contattare l'assistenza Lombardi (aftersales@lombardi.it | +39 030 3580531).
+2. Rileva la lingua dell'utente e rispondi SEMPRE nella stessa lingua (italiano, inglese, vietnamita, ecc.).
+3. Quando rispondi, indica da quale documento proviene l'informazione (es. "Secondo il manuale del sistema GEW…").
+4. Usa linguaggio tecnico preciso e professionale.
+5. Per procedure operative usa sempre elenchi numerati.
+6. Segnala avvisi di sicurezza con ⚠️ ATTENZIONE:.
+7. Se una domanda richiede un tecnico Lombardi qualificato, dillo esplicitamente.`;
+
+    // Build API messages — first user turn embeds ALL PDFs
+    const apiMsgs = chatHistory.map((m, i) => {
+      if (i === 0) {
+        return {
+          role: 'user',
+          content: [
+            ...g.docs.map(d => ({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:d.base64 } })),
+            { type:'text', text: m.content }
+          ]
+        };
+      }
+      return { role: m.role==='user'?'user':'assistant', content: m.content };
+    });
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system, messages:apiMsgs })
+    });
+
+    const data = await res.json();
+    removeTyping();
+    if (data.error) { appendMsg('bot','⚠️ Errore API: '+data.error.message,false); return; }
+    const reply = data.content.map(b=>b.text||'').join('');
+    chatHistory.push({ role:'assistant', content:reply });
+    appendMsg('bot', fmtReply(reply), true);
+
+  } catch(err) {
+    removeTyping();
+    appendMsg('bot','⚠️ Errore di connessione. Controlla la rete e riprova.',false);
+    console.error(err);
+  } finally {
+    isLoading=false;
+    if (!document.getElementById('userInput').disabled)
+      document.getElementById('sendBtn').disabled=false;
+  }
+}
+
+// ═══════════════════════════════════════
+// SUPPORT / ASSISTENZA MODAL
+// ═══════════════════════════════════════
+let supportType = 'ricambio';
+let selectedCatalogDocs = new Set(); // selected doc ids
+let currentSupportStep = 1;
+
+// Load PDF.js lazily
+let pdfjsLib = null;
+async function getPdfJs() {
+  if (pdfjsLib) return pdfjsLib;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+  pdfjsLib = window.pdfjsLib;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  return pdfjsLib;
+}
+
+function openSupportModal() {
+  selectedCatalogDocs.clear();
+  document.getElementById('sMacchina').value = activeGroup || '';
+  document.getElementById('sCatalogNote').value = '';
+  goStep(1);
+  document.getElementById('supportModal').classList.add('open');
+  setTimeout(() => document.getElementById('sNome').focus(), 150);
+}
+
+function closeSupportModal(e) {
+  if (e && e.target !== document.getElementById('supportModal')) return;
+  document.getElementById('supportModal').classList.remove('open');
+}
+
+function goStep(n) {
+  currentSupportStep = n;
+  [1,2,3].forEach(i => {
+    document.getElementById(`sStep${i}`).style.display = i===n ? 'block' : 'none';
+    document.getElementById(`step${i}tab`).classList.toggle('active', i===n);
+  });
+  if (n === 2) renderCatalog();
+  if (n === 3) updateMailPreview();
+}
+
+function selectType(type) {
+  supportType = type;
+  ['ricambio','assistenza','formazione'].forEach(t => {
+    const el = document.getElementById('type' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.classList.toggle('active', t === type);
+  });
+}
+
+// ── Catalog rendering ────────────────────
+async function renderCatalog() {
+  if (!activeGroup) return;
+  const g = groups[activeGroup];
+  const catalogDocs = g.docs.filter(d => d.type === 'drawing' || d.type === 'spare');
+  const grid = document.getElementById('catalogGrid');
+  const empty = document.getElementById('catalogEmpty');
+  const noteWrap = document.getElementById('catalogNoteWrap');
+
+  if (!catalogDocs.length) {
+    empty.style.display = 'block';
+    grid.style.display = 'none';
+    noteWrap.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+  noteWrap.style.display = 'block';
+
+  grid.innerHTML = catalogDocs.map(d => `
+    <div class="catalog-card${selectedCatalogDocs.has(d.id)?' selected':''}"
+         id="card_${d.id}" onclick="toggleCatalogDoc('${d.id}')">
+      <div class="catalog-thumb" id="thumb_${d.id}">
+        <div class="catalog-thumb-loading">⏳</div>
+      </div>
+      <div class="catalog-info">
+        <div class="catalog-name" title="${esc(d.fileName)}">${esc(d.name)}</div>
+        <span class="catalog-type-badge ${d.type}" style="${d.type==='drawing'?'background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.2)':'background:rgba(251,146,60,.1);color:#fb923c;border:1px solid rgba(251,146,60,.2)'}">
+          ${d.type==='drawing'?'📐 disegno':'🔩 ricambi'}
+        </span>
+      </div>
+      <div class="catalog-check">✓</div>
+    </div>`).join('');
+
+  // Render PDF thumbnails asynchronously
+  try {
+    const lib = await getPdfJs();
+    for (const d of catalogDocs) {
+      renderPdfThumb(lib, d);
+    }
+  } catch(e) {
+    // PDF.js failed to load — show fallback icons
+    catalogDocs.forEach(d => {
+      const th = document.getElementById(`thumb_${d.id}`);
+      if (th) th.innerHTML = `<div class="catalog-thumb-fallback">${d.type==='drawing'?'📐':'🔩'}</div>`;
+    });
+  }
+}
+
+async function renderPdfThumb(lib, doc) {
+  const thumbEl = document.getElementById(`thumb_${doc.id}`);
+  if (!thumbEl) return;
+  try {
+    const bytes = Uint8Array.from(atob(doc.base64), c => c.charCodeAt(0));
+    const pdf = await lib.getDocument({ data: bytes }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 0.5 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    thumbEl.innerHTML = '';
+    thumbEl.appendChild(canvas);
+  } catch(e) {
+    thumbEl.innerHTML = `<div class="catalog-thumb-fallback">${doc.type==='drawing'?'📐':'🔩'}</div>`;
+  }
+}
+
+function toggleCatalogDoc(id) {
+  const card = document.getElementById(`card_${id}`);
+  if (selectedCatalogDocs.has(id)) {
+    selectedCatalogDocs.delete(id);
+    card.classList.remove('selected');
+  } else {
+    selectedCatalogDocs.add(id);
+    card.classList.add('selected');
+  }
+}
+
+// ── Preview & send ───────────────────────
+function updateMailPreview() {
+  const nome = document.getElementById('sNome').value || '—';
+  const azienda = document.getElementById('sAzienda').value || '—';
+  const email = document.getElementById('sEmail').value || '—';
+  const macchina = document.getElementById('sMacchina').value || '—';
+  const urgenza = document.getElementById('sUrgenza')?.value || 'normale';
+  const urgLabels = { normale:'🟢 Normale', alta:'🟡 Alta', critica:'🔴 Critica — FERMO MACCHINA' };
+  const typeLabels = { ricambio:'🔩 Richiesta ricambio', assistenza:'🔧 Assistenza tecnica', formazione:'📚 Formazione' };
+
+  let catalogLine = '';
+  if (selectedCatalogDocs.size > 0 && activeGroup) {
+    const g = groups[activeGroup];
+    const names = [...selectedCatalogDocs].map(id => g.docs.find(d=>d.id===id)?.name).filter(Boolean);
+    catalogLine = `<br><strong>Documenti:</strong> ${names.join(', ')}`;
+  }
+  const note = document.getElementById('sCatalogNote').value;
+  const noteLine = note ? `<br><strong>Nota:</strong> ${esc(note)}` : '';
+
+  document.getElementById('mailPreview').innerHTML =
+    `<strong>A:</strong> aftersales@lombardi.it &nbsp;·&nbsp; <strong>CC:</strong> ${esc(email)}<br>
+     <strong>Oggetto:</strong> [${typeLabels[supportType]}] ${esc(macchina)}<br>
+     <strong>Da:</strong> ${esc(nome)} · ${esc(azienda)}<br>
+     <strong>Urgenza:</strong> ${urgLabels[urgenza]}${catalogLine}${noteLine}`;
+}
+
+// Live preview
+['sNome','sAzienda','sEmail','sUrgenza','sMacchina'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => { if(currentSupportStep===3) updateMailPreview(); });
+});
+
+function sendSupportMail() {
+  const nome = document.getElementById('sNome').value.trim();
+  const email = document.getElementById('sEmail').value.trim();
+  const desc = document.getElementById('sDescrizione').value.trim();
+  if (!nome) { highlight('sNome'); goStep(1); return; }
+  if (!email || !email.includes('@')) { highlight('sEmail'); goStep(1); return; }
+  if (!desc) { highlight('sDescrizione'); goStep(1); return; }
+
+  const azienda = document.getElementById('sAzienda').value.trim();
+  const tel = document.getElementById('sTel').value.trim();
+  const macchina = document.getElementById('sMacchina').value.trim();
+  const urgenza = document.getElementById('sUrgenza').value;
+  const note = document.getElementById('sCatalogNote').value.trim();
+  const urgLabels = { normale:'Normale (entro 48h)', alta:'Alta (entro 24h)', critica:'CRITICA — FERMO MACCHINA' };
+  const typeLabels = { ricambio:'Richiesta ricambio', assistenza:'Assistenza tecnica', formazione:'Formazione operatori' };
+
+  // Selected catalog docs
+  let catalogSection = '';
+  if (selectedCatalogDocs.size > 0 && activeGroup) {
+    const g = groups[activeGroup];
+    const names = [...selectedCatalogDocs].map(id => {
+      const d = g.docs.find(d=>d.id===id);
+      return d ? `  - [${d.type==='drawing'?'DISEGNO':'RICAMBI'}] ${d.name} (${d.fileName})` : '';
+    }).filter(Boolean).join('\n');
+    catalogSection = `\n\nDOCUMENTI DI RIFERIMENTO\n${names}`;
+    if (note) catalogSection += `\nNota operatore: ${note}`;
+  }
+
+  // Chat summary
+  let chatSection = '';
+  if (chatHistory.length > 0) {
+    const recent = chatHistory.slice(-6);
+    chatSection = '\n\n--- ESTRATTO CHAT CON ALFRED ---\n' +
+      recent.map(m => `[${m.role==='user'?'OPERATORE':'ALFRED'}]: ${m.content.substring(0,250)}${m.content.length>250?'…':''}`).join('\n\n');
+  }
+
+  const subject = encodeURIComponent(`[${typeLabels[supportType]}] ${macchina || 'Macchina Lombardi'}`);
+  const body = encodeURIComponent(
+`RICHIESTA ${typeLabels[supportType].toUpperCase()}
+${'='.repeat(40)}
+
+DATI CONTATTO
+Nome: ${nome}
+Azienda: ${azienda || 'N/D'}
+Email: ${email}
+Telefono: ${tel || 'N/D'}
+
+MACCHINA / IMPIANTO
+${macchina || 'N/D'}
+
+URGENZA
+${urgLabels[urgenza]}
+
+DESCRIZIONE
+${desc}${catalogSection}${chatSection}
+
+${'='.repeat(40)}
+Inviato da Alfred – Lombardi Converting Machinery`
+  );
+
+  window.location.href = `mailto:aftersales@lombardi.it?subject=${subject}&body=${body}&cc=${encodeURIComponent(email)}`;
+  document.getElementById('supportModal').classList.remove('open');
+  showToast('📧 Client mail aperto — verifica e invia', 'tech');
+
+  // Reset form
+  ['sNome','sAzienda','sEmail','sTel','sDescrizione','sCatalogNote'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('sUrgenza').value = 'normale';
+  selectType('ricambio');
+  selectedCatalogDocs.clear();
+}
+
+function highlight(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--red)';
+  el.focus();
+  setTimeout(() => { el.style.borderColor = ''; }, 1800);
+}
+
+// ═══════════════════════════════════════
+// ROLE MANAGEMENT
+// ═══════════════════════════════════════
+const TECH_PIN = 'TECH2025'; // ← cambia questo PIN
+let currentRole = 'operator'; // 'operator' | 'technician'
+
+function handleRoleClick() {
+  if (currentRole === 'operator') {
+    // Open PIN modal to upgrade to technician
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinError').textContent = '';
+    document.getElementById('pinModal').classList.add('open');
+    setTimeout(() => document.getElementById('pinInput').focus(), 100);
+  } else {
+    // Already technician — show logout modal
+    document.getElementById('logoutModal').classList.add('open');
+  }
+}
+
+function confirmPin() {
+  const val = document.getElementById('pinInput').value.trim();
+  if (val === TECH_PIN) {
+    setTechnicianRole();
+    document.getElementById('pinModal').classList.remove('open');
+  } else {
+    const err = document.getElementById('pinError');
+    err.textContent = '✗ PIN non corretto';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+    setTimeout(() => { err.textContent = ''; }, 2000);
+  }
+}
+
+function closePinModal(e) {
+  if (e && e.target !== document.getElementById('pinModal')) return;
+  document.getElementById('pinModal').classList.remove('open');
+}
+
+function closeLogoutModal(e) {
+  if (e && e.target !== document.getElementById('logoutModal')) return;
+  document.getElementById('logoutModal').classList.remove('open');
+}
+
+function setTechnicianRole() {
+  currentRole = 'technician';
+  // Update badge
+  const badge = document.getElementById('roleBadge');
+  badge.className = 'role-badge technician';
+  badge.title = 'Modalità Tecnico attiva — clicca per info';
+  document.getElementById('roleBadgeText').textContent = 'Tecnico';
+  badge.querySelector('svg').innerHTML = `<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>`;
+
+  // Unlock everything
+  sessionLocked = false;
+  document.getElementById('lockBadge').classList.remove('show');
+  document.getElementById('uploadZone').classList.remove('locked');
+  document.getElementById('sbLockBanner').classList.remove('show');
+
+  // Show new session btn always for technician
+  document.getElementById('newSessBtn').classList.add('show');
+  document.getElementById('newSessBtn').textContent = '';
+  const nsBtn = document.getElementById('newSessBtn');
+  nsBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:11px;height:11px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Nuova sessione`;
+
+  renderTree(document.getElementById('searchInput').value);
+
+  // Show a toast
+  showToast('🔧 Modalità Tecnico attivata', 'tech');
+}
+
+function setOperatorRole() {
+  currentRole = 'operator';
+  const badge = document.getElementById('roleBadge');
+  badge.className = 'role-badge operator';
+  badge.title = 'Clicca per accedere come Tecnico';
+  document.getElementById('roleBadgeText').textContent = 'Operatore';
+  badge.querySelector('svg').innerHTML = `<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`;
+
+  document.getElementById('logoutModal').classList.remove('open');
+
+  // Re-lock if there's an active session with messages
+  if (activeGroup && chatHistory.length > 0) {
+    lockSession();
+  } else {
+    document.getElementById('newSessBtn').classList.remove('show');
+  }
+
+  showToast('👤 Modalità Operatore ripristinata', 'op');
+}
+
+// Override lockSession to respect tech role
+const _origLock = lockSession;
+lockSession = function() {
+  if (currentRole === 'technician') return; // tecnico non si blocca mai
+  sessionLocked = true;
+  document.getElementById('lockBadge').classList.add('show');
+  document.getElementById('newSessBtn').classList.add('show');
+  document.getElementById('uploadZone').classList.add('locked');
+  document.getElementById('sbLockBanner').classList.add('show');
+  renderTree(document.getElementById('searchInput').value);
+};
+
+// ─── API Key Modal ─────────────────────────
+function openApiKeyModal() {
+  const modal = document.getElementById('apiKeyModal');
+  const input = document.getElementById('apiKeyInput');
+  input.value = _apiKey ? '••••••••••••••••' : '';
+  modal.style.display = 'flex';
+  if (!_apiKey) input.focus();
+}
+
+function confirmApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val || val === '••••••••••••••••') {
+    if (_apiKey) { closeApiKeyModal(); return; }
+    document.getElementById('apiKeyErr').textContent = 'Inserisci una API key valida';
+    return;
+  }
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('apiKeyErr').textContent = 'La chiave deve iniziare con sk-ant-';
+    return;
+  }
+  saveApiKey(val);
+  updateStatusPill();
+  closeApiKeyModal();
+  showToast('API Key salvata ✓', 'success');
+}
+
+function closeApiKeyModal() {
+  document.getElementById('apiKeyModal').style.display = 'none';
+}
+
+function updateStatusPill() {
+  const dot = document.getElementById('statusDot');
+  const lbl = document.getElementById('statusLbl');
+  if (_apiKey) {
+    dot.style.background = 'var(--green)';
+    lbl.textContent = 'AI ONLINE';
+  } else {
+    dot.style.background = 'var(--warn-text)';
+    lbl.textContent = 'CONFIGURA KEY 🔑';
+  }
+}
+
+// ─── Toast notification ───────────────────
+function showToast(msg, type) {
+  const existing = document.getElementById('alfredToast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'alfredToast';
+  t.style.cssText = `
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:${type==='tech'?'rgba(249,115,22,.15)':'rgba(34,197,94,.12)'};
+    border:1px solid ${type==='tech'?'rgba(249,115,22,.35)':'rgba(34,197,94,.3)'};
+    color:${type==='tech'?'#fb923c':'#4ade80'};
+    font-family:'DM Mono',monospace; font-size:12px; letter-spacing:1px;
+    padding:10px 20px; border-radius:8px; z-index:999;
+    animation:fadeUp .25s ease;
+    backdrop-filter:blur(8px);
+    white-space:nowrap;
+  `;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function fmtSize(b) { return b<1048576 ? (b/1024).toFixed(0)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+
+
+
+// ═══════════════════════════════════════
+
+
+
+// ═══════════════════════════════════════
+// PWA INSTALL PROMPT
+// ═══════════════════════════════════════
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _pwaPrompt = e;
+  if (document.getElementById('pwa-banner')) return;
+  var b = document.createElement('div');
+  b.id = 'pwa-banner';
+  b.style.cssText = 'position:fixed;bottom:70px;right:20px;z-index:500;background:#0d1117;border:1px solid #2f8fd4;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.5);max-width:290px;';
+  b.innerHTML = '<span style="font-size:22px">🎩</span><div style="flex:1"><div style="font-family:DM Mono,monospace;font-size:11px;color:#cdd9e8;font-weight:500">Installa Alfred</div><div style="font-family:DM Mono,monospace;font-size:10px;color:#4a6070;margin-top:2px">Icona cappello sul desktop</div></div><button id="pwa-inst" style="background:#2f8fd4;border:none;border-radius:6px;padding:6px 12px;color:#fff;font-family:DM Mono,monospace;font-size:10px;cursor:pointer;flex-shrink:0">Installa</button><button onclick="document.getElementById('pwa-banner').remove()" style="background:transparent;border:none;color:#4a6070;cursor:pointer;font-size:18px;padding:0 4px">×</button>';
+  document.body.appendChild(b);
+  document.getElementById('pwa-inst').onclick = async function() {
+    if (!_pwaPrompt) return;
+    _pwaPrompt.prompt();
+    await _pwaPrompt.userChoice;
+    _pwaPrompt = null;
+    b.remove();
+  };
+});
+window.addEventListener('appinstalled', function() {
+  var b = document.getElementById('pwa-banner');
+  if (b) b.remove();
+  showToast('🎩 Alfred installato sul desktop!', 'tech');
+});
+</script>
+<!-- SUPPORT MODAL -->
+<div class="modal-backdrop" id="supportModal" onclick="closeSupportModal(event)">
+  <div class="modal wide">
+    <div class="modal-icon">📬</div>
+    <h3>Richiedi Assistenza</h3>
+
+    <!-- Step indicator -->
+    <div style="display:flex;gap:0;margin-bottom:18px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+      <div class="smodal-step active" id="step1tab" onclick="goStep(1)">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px">1 · RICHIESTA</span>
+      </div>
+      <div class="smodal-step" id="step2tab" onclick="goStep(2)">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px">2 · CATALOGO</span>
+      </div>
+      <div class="smodal-step" id="step3tab" onclick="goStep(3)">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px">3 · INVIA</span>
+      </div>
+    </div>
+
+    <!-- STEP 1: form dati -->
+    <div id="sStep1">
+      <div class="field-group" style="margin-bottom:14px">
+        <span class="field-label">Tipo richiesta <span class="field-required">*</span></span>
+        <div class="type-pills">
+          <div class="type-pill active" id="typeRicambio" onclick="selectType('ricambio')">
+            <span class="pill-icon">🔩</span>Ricambio
+          </div>
+          <div class="type-pill" id="typeAssistenza" onclick="selectType('assistenza')">
+            <span class="pill-icon">🔧</span>Assistenza
+          </div>
+          <div class="type-pill" id="typeFormazione" onclick="selectType('formazione')">
+            <span class="pill-icon">📚</span>Formazione
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Nome <span class="field-required">*</span></label>
+          <input class="field-input" type="text" id="sNome" placeholder="Mario Rossi">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Azienda</label>
+          <input class="field-input" type="text" id="sAzienda" placeholder="Nome azienda">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Email <span class="field-required">*</span></label>
+          <input class="field-input" type="email" id="sEmail" placeholder="nome@azienda.com">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Telefono</label>
+          <input class="field-input" type="tel" id="sTel" placeholder="+39 000 0000000">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Macchina / Componente <span style="color:var(--muted);font-weight:normal;text-transform:none;letter-spacing:0;font-size:10px">(modifica se necessario)</span></label>
+        <input class="field-input" type="text" id="sMacchina" placeholder="es. INVICTA I1-670 · Sistema GEW UV" style="color:var(--accent)">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Descrizione richiesta <span class="field-required">*</span></label>
+        <textarea class="field-textarea" id="sDescrizione" placeholder="Descrivi il problema, il ricambio necessario o il tipo di assistenza richiesta…"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Urgenza</label>
+        <select class="field-select" id="sUrgenza">
+          <option value="normale">🟢 Normale — entro 48h</option>
+          <option value="alta">🟡 Alta — entro 24h</option>
+          <option value="critica">🔴 Critica — fermo macchina</option>
+        </select>
+      </div>
+
+      <div class="modal-btns">
+        <button class="mbtn cancel" onclick="closeSupportModal()">Annulla</button>
+        <button class="mbtn confirm-blue" onclick="goStep(2)">Avanti → Catalogo</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: catalogo PDF (disegni + ricambi) -->
+    <div id="sStep2" style="display:none">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.6">
+        Seleziona i documenti da allegare alla richiesta. L'operatore può sfogliare disegni meccanici e cataloghi ricambi e indicare il documento di riferimento.
+      </div>
+
+      <div id="catalogEmpty" style="display:none;text-align:center;padding:24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">
+        📐 Nessun disegno meccanico o catalogo ricambi caricato per questa macchina.<br>
+        <span style="font-size:10px;margin-top:6px;display:block">Carica PDF di tipo "Disegno" o "Catalogo ricambi" dalla sidebar.</span>
+      </div>
+
+      <div id="catalogGrid" class="catalog-grid"></div>
+
+      <div style="margin-top:12px" id="catalogNoteWrap">
+        <label class="field-label">Nota sul documento selezionato</label>
+        <input class="field-input" type="text" id="sCatalogNote" placeholder="es. Pos. 14 — ingranaggio Z32, codice LB-4421…">
+      </div>
+
+      <div class="modal-btns" style="margin-top:16px">
+        <button class="mbtn cancel" onclick="goStep(1)">← Indietro</button>
+        <button class="mbtn confirm-blue" onclick="goStep(3)">Avanti → Riepilogo</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: preview e invio -->
+    <div id="sStep3" style="display:none">
+      <div class="mail-preview" id="mailPreview" style="margin-bottom:16px"></div>
+      <div class="modal-btns">
+        <button class="mbtn cancel" onclick="goStep(2)">← Indietro</button>
+        <button class="mbtn confirm-blue" onclick="sendSupportMail()">📧 Apri Outlook e invia</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PIN MODAL — tecnico -->
+<div class="modal-backdrop" id="pinModal" onclick="closePinModal(event)">
+  <div class="modal">
+    <div class="modal-icon">🔑</div>
+    <h3>Accesso Tecnico</h3>
+    <p>Inserisci il PIN tecnico per sbloccare le funzioni avanzate.</p>
+    <input class="pin-input" type="password" id="pinInput" maxlength="12"
+      placeholder="• • • • • •"
+      onkeydown="if(event.key==='Enter') confirmPin()">
+    <div class="pin-error" id="pinError"></div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closePinModal()">Annulla</button>
+      <button class="mbtn confirm-blue" onclick="confirmPin()">Accedi</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT TECNICO MODAL -->
+<div class="modal-backdrop" id="logoutModal" onclick="closeLogoutModal(event)">
+  <div class="modal">
+    <div class="modal-icon">🎩</div>
+    <h3>Modalità Tecnico</h3>
+    <p>Sei in modalità <strong>Tecnico</strong>. Puoi cambiare macchina, caricare manuali e resettare sessioni liberamente.<br><br>Vuoi tornare alla modalità Operatore?</p>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeLogoutModal()">Rimani Tecnico</button>
+      <button class="mbtn confirm-red" onclick="setOperatorRole()">Torna Operatore</button>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+// Init API key on load
+updateStatusPill();
+if (!_apiKey) {
+  setTimeout(() => openApiKeyModal(), 300);
+}
+</script>
+</html>
