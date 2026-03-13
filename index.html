@@ -536,9 +536,9 @@
       </svg>
       Nuova sessione
     </button>
-    <div class="status-pill" id="statusPill" onclick="openApiKeyModal()" style="cursor:pointer">
-      <div class="status-dot" id="statusDot"></div>
-      <span class="status-lbl" id="statusLbl">AI ONLINE</span>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span class="status-lbl">AI ONLINE</span>
     </div>
   </div>
 </header>
@@ -1095,7 +1095,7 @@ ISTRUZIONI OPERATIVE:
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{ 'Content-Type':'application/json', 'x-api-key': getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      headers:{ 'Content-Type':'application/json', 'x-api-key': (localStorage.getItem("alfred_api_key")||""), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
       body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system, messages:apiMsgs })
     });
 
@@ -1678,62 +1678,39 @@ window.addEventListener('appinstalled', function() {
 </div>
 
 
-<div class="modal-backdrop" id="apiKeyModal" style="display:none">
-  <div class="modal" style="max-width:420px;text-align:left">
-    <div class="modal-icon" style="text-align:center">&#128273;</div>
-    <h3 style="text-align:center">Configura API Key</h3>
-    <p style="text-align:center">Inserisci la tua <strong>Anthropic API Key</strong>.<br>Salvata solo nel browser locale.</p>
-    <div style="margin-bottom:12px">
-      <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px">API Key *</label>
-      <input class="field-input" type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" style="width:100%">
-      <div id="apiKeyErr" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-height:16px;margin-top:4px"></div>
-    </div>
-    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      Clicca su AI ONLINE in alto a destra per cambiarla.
-    </div>
-    <div class="modal-btns">
-      <button class="mbtn confirm-blue" onclick="confirmApiKey()">Salva e Continua</button>
-    </div>
+<div id="apiKeyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);align-items:center;justify-content:center">
+  <div style="background:#0d1117;border:1px solid #1e2a3a;border-radius:14px;padding:32px 28px;max-width:400px;width:90%;text-align:center">
+    <div style="font-size:28px;margin-bottom:12px">&#128273;</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:8px">API KEY</div>
+    <p style="font-family:'DM Mono',monospace;font-size:11px;color:#4a6070;line-height:1.7;margin-bottom:18px">Inserisci la tua <span style="color:#2f8fd4">Anthropic API Key</span>.<br>Viene salvata solo nel browser locale.</p>
+    <input id="akInput" type="password" placeholder="sk-ant-..." autocomplete="off"
+      style="width:100%;background:#080b10;border:1px solid #1e2a3a;border-radius:7px;padding:10px 13px;color:#cdd9e8;font-family:'DM Mono',monospace;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
+    <div id="akErr" style="font-family:'DM Mono',monospace;font-size:11px;color:#ef4444;min-height:16px;margin-bottom:14px"></div>
+    <button onclick="saveApiKey()"
+      style="background:#2f8fd4;border:none;border-radius:7px;padding:10px 28px;color:#fff;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;width:100%">
+      Salva e Continua
+    </button>
   </div>
 </div>
-
 <script>
-var _apiKey = localStorage.getItem("alfred_api_key") || "";
-
-function getApiKey() { return _apiKey; }
-
-function openApiKeyModal() {
-  document.getElementById("apiKeyInput").value = "";
-  document.getElementById("apiKeyErr").textContent = "";
-  document.getElementById("apiKeyModal").style.display = "flex";
-  setTimeout(function(){ document.getElementById("apiKeyInput").focus(); }, 100);
-}
-
-function confirmApiKey() {
-  var val = document.getElementById("apiKeyInput").value.trim();
-  if (!val) {
-    if (_apiKey) { document.getElementById("apiKeyModal").style.display = "none"; return; }
-    document.getElementById("apiKeyErr").textContent = "Inserisci una API key valida";
-    return;
+(function(){
+  var modal = document.getElementById("apiKeyModal");
+  if (!localStorage.getItem("alfred_api_key")) {
+    modal.style.display = "flex";
+    setTimeout(function(){ document.getElementById("akInput").focus(); }, 100);
   }
-  if (val.indexOf("sk-ant-") !== 0) {
-    document.getElementById("apiKeyErr").textContent = "La chiave deve iniziare con sk-ant-";
-    return;
-  }
-  _apiKey = val;
-  localStorage.setItem("alfred_api_key", val);
-  document.getElementById("statusDot").style.background = "var(--green)";
-  document.getElementById("statusLbl").textContent = "AI ONLINE";
-  document.getElementById("apiKeyModal").style.display = "none";
-  showToast("API Key salvata", "success");
-}
-
-if (!_apiKey) {
-  window.addEventListener("DOMContentLoaded", function() {
-    setTimeout(openApiKeyModal, 500);
-    document.getElementById("statusDot").style.background = "var(--warn-text)";
-    document.getElementById("statusLbl").textContent = "CONFIGURA KEY";
+  document.getElementById("akInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter") saveApiKey();
   });
+})();
+function saveApiKey(){
+  var v = document.getElementById("akInput").value.trim();
+  if (!v || v.indexOf("sk-ant-") !== 0) {
+    document.getElementById("akErr").textContent = "Chiave non valida (deve iniziare con sk-ant-)";
+    return;
+  }
+  localStorage.setItem("alfred_api_key", v);
+  document.getElementById("apiKeyModal").style.display = "none";
 }
 </script>
 
